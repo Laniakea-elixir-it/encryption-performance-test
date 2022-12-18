@@ -1,4 +1,6 @@
-# bioblend-test
+Laniakea Storage Encryption performance test
+============================================
+
 This repository contains two python scripts that use bioblend:
 
 * [install_tools_from_wf.py](https://github.com/Laniakea-elixir-it/bioblend_test/blob/main/install_tools_from_wf.py) installs the tools required by a workflow;
