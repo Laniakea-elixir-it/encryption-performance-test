@@ -1,0 +1,16 @@
+{
+    "db80c17e58d538c1": {
+        "tool_id": "upload1",
+        "runtime_value": "4 minutes",
+        "runtime_raw_value": "247.0000000",
+        "start": "2024-04-15 10:57:00",
+        "end": "2024-04-15 11:01:07"
+    },
+    "6cc86a184dc1d232": {
+        "tool_id": "upload1",
+        "runtime_value": "4 minutes",
+        "runtime_raw_value": "246.0000000",
+        "start": "2024-04-15 10:57:00",
+        "end": "2024-04-15 11:01:06"
+    }
+}

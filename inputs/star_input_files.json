@@ -1,0 +1,10 @@
+{
+        "1_reads": {
+                "url":"https://212.189.202.115.cloud.ba.infn.it/SRR15668754/SRR15668754_1_25kkReads.fastq",
+                "file_type":"fastq"
+        },
+        "2_reads": {
+                "url":"https://212.189.202.115.cloud.ba.infn.it/SRR15668754/SRR15668754_2_25kkReads.fastq",
+                "file_type":"fastq"
+        }
+}

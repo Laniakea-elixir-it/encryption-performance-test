@@ -1,0 +1,9 @@
+{
+    "fa47cf9a4da72d90": {
+        "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.3.4.3+galaxy0",
+        "runtime_value": "40 minutes",
+        "runtime_raw_value": "2407.0000000",
+        "start": "2024-04-14 19:12:57",
+        "end": "2024-04-14 19:53:04"
+    }
+}
