@@ -1,0 +1,9 @@
+{
+    "d5e38de87e8a563f": {
+        "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy2",
+        "runtime_value": "51 minutes",
+        "runtime_raw_value": "3093.0000000",
+        "start": "2024-05-06 17:56:17",
+        "end": "2024-05-06 18:47:50"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "cab68a1ccca17e68": {
+        "tool_id": "upload1",
+        "runtime_value": "2 minutes",
+        "runtime_raw_value": "147.0000000",
+        "start": "2024-04-19 04:15:43",
+        "end": "2024-04-19 04:18:10"
+    },
+    "bb80841fd9d212dd": {
+        "tool_id": "upload1",
+        "runtime_value": "2 minutes",
+        "runtime_raw_value": "146.0000000",
+        "start": "2024-04-19 04:15:43",
+        "end": "2024-04-19 04:18:09"
+    }
+}

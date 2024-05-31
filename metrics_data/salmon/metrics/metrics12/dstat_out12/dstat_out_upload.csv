@@ -1,0 +1,7 @@
+"pcp-dstat 6.0.5 CSV Output"
+"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
+"Host:","vnode-0.localdomain",,,,"User:","root"
+"Cmdline:","dstat --disk-tps -d -t --noheaders -o /home/root/dstat_out12/dstat_out_upload.csv -D vdb",,,,"Date:","06 May 2024 17:04:41 UTC"
+"dsk/vdb",,"dsk/vdb",,"system"
+"dsk/vdb:#read","dsk/vdb:#writ","dsk/vdb:read","dsk/vdb:writ","time"
+,,,,06-05 17:04:41

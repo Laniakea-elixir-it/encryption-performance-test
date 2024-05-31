@@ -1,0 +1,9 @@
+{
+    "b974e36bb6f3a591": {
+        "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star/2.7.11a+galaxy0",
+        "runtime_value": "52 minutes",
+        "runtime_raw_value": "3132.0000000",
+        "start": "2024-04-19 10:43:04",
+        "end": "2024-04-19 11:35:16"
+    }
+}

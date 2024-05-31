@@ -1,0 +1,16 @@
+{
+    "b5d8dfad07d9a4f1": {
+        "tool_id": "upload1",
+        "runtime_value": "2 minutes",
+        "runtime_raw_value": "171.0000000",
+        "start": "2024-04-21 14:50:21",
+        "end": "2024-04-21 14:53:12"
+    },
+    "7a2bab8461511231": {
+        "tool_id": "upload1",
+        "runtime_value": "2 minutes",
+        "runtime_raw_value": "168.0000000",
+        "start": "2024-04-21 14:50:22",
+        "end": "2024-04-21 14:53:10"
+    }
+}
