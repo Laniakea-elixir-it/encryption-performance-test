@@ -32,7 +32,7 @@ def cli_options():
     parser = argparse.ArgumentParser(description='Plot disk metrics of workflow')
     parser.add_argument('-i', '--input-dir', dest='basedir', help='Base directory containing metrics and metrics_encrypted directory, each with metrics inside')
     parser.add_argument('--title', dest='main_title', help='Main title')
-    parser.add_argument('--font-scale', default=2.8, dest='font_scale', help='Plot font scale')
+    parser.add_argument('--font-scale', default=2.6, dest='font_scale', help='Plot font scale')
     parser.add_argument('--notch', default=False, dest='notch', action='store_true', help='If set, notches are shown in boxplots')
     parser.add_argument('--pvalues', default=False, dest='pvalues', action='store_true', help='If set, pvalues are shown in boxplots')
     parser.add_argument('--all-plots', default=False, dest='all_plots', action='store_true', help='If set, all the plots will be produced (also histograms for plain disk I/O metrics)')
@@ -56,6 +56,8 @@ def filter_time(df, metrics_path):
     """
     
     # Set column names
+    print(df)
+
     df.set_axis(['read_tps', 'write_tps', 'rMB/s', 'wMB/s', 'time'], axis=1, inplace=True)
     
     # Convert time to datetime object
@@ -121,11 +123,12 @@ def get_metrics(basedir, encrypted, time_metrics_file='wf_jobs_metrics.json', ds
                 times += time
 
             # read/write velocity
+            print(f'{directory}/dstat_out{index}/{dstat_metrics_file}')
             dstat_df = pd.read_csv(f'{directory}/dstat_out{index}/{dstat_metrics_file}',header=[0,1],skiprows=5)
             dstat_df = filter_time(dstat_df, f'{directory}/{time_metrics_file}')
             
-            dstat_df['rMB/s'] = dstat_df['rMB/s'].div(1000000)
-            dstat_df['wMB/s'] = dstat_df['wMB/s'].div(1000000)
+            dstat_df['rMB/s'] = dstat_df['rMB/s'].div(1024)
+            dstat_df['wMB/s'] = dstat_df['wMB/s'].div(1024)
 
             # Build plain data
             dstat_df['encrypted'] = [encrypted]*len(dstat_df)
@@ -141,7 +144,7 @@ def get_metrics(basedir, encrypted, time_metrics_file='wf_jobs_metrics.json', ds
     
     avg_df = pd.DataFrame(list_of_avg_metrics)
     plain_df = pd.concat(list_of_metrics)
-            
+
     return times, plain_df, avg_df
 
 
@@ -161,6 +164,13 @@ def build_time_df(encrypted_time, nonencrypted_time):
     })
     return time_df
 
+def eval_avgs(ls):
+    df = pd.DataFrame(ls)
+    mean = df.mean()
+    sem = df.sem()
+    print(f'Mean: {mean}')
+    print(f'Standard Error: {sem}')
+    #print(df.std())
 
 def build_dataframes(basedir, time_metrics_file='wf_jobs_metrics.json', dstat_metrics_file='dstat_out_wf.csv'):
     """Main function for data preprocessing, build metrics dataframes used to plot data.
@@ -183,10 +193,31 @@ def build_dataframes(basedir, time_metrics_file='wf_jobs_metrics.json', dstat_me
                                                                           encrypted='Non encrypted',
                                                                           time_metrics_file=time_metrics_file,
                                                                           dstat_metrics_file=dstat_metrics_file)
-    
+
+    # We calculate median and standard error here
+    # Since the box plot exploit the average dataframe we compute median and not mean.
+    # For runtime the box plot use the values, so we use the mean
+    print('###################################')
+    print('START COMPUTING AVG VALUES')
+
+    print ('----------------------------')
+    print('Compute encrypted avg runtime, read and write speed')
+    eval_avgs(encrypted_time)
+    print(encrypted_df.mean())
+    print(encrypted_df.sem())
+
+    print ('----------------------------')
+    print('Compute not encrypted avg runtime, read and write speed')
+    eval_avgs(nonencrypted_time)
+    print(nonencrypted_df.mean())
+    print(nonencrypted_df.sem())
+
+    print('AVG VALUES COMPUTED')
+    print('###################################')
+
     # runtime dataframe
     time_df = build_time_df(encrypted_time, nonencrypted_time)
-
+   
     # Disk metrics dataframe
     dstat_df = pd.concat([encrypted_df, nonencrypted_df])
 
@@ -228,7 +259,7 @@ def boxplot(data, column, ax=0, title='', title_fontsize=40, figsize=None, showf
         plt.figure(figsize=figsize)
 
     # Plot data
-    sns.boxplot(ax=ax, data=data, x='encrypted', y=column, showfliers=showfliers, notch=notch)
+    sns.violinplot(ax=ax, data=data, x='encrypted', y=column, showfliers=showfliers, notch=notch, palette="pastel")
     
     if pvalues:
         order = ['Encrypted', 'Non encrypted']
@@ -269,9 +300,9 @@ def hist(data, column, ax=0, title='', title_fontsize=40, figsize=None, bins=50,
     binrange = (min(data[column]), max(data[column]))
     
     sns.histplot(ax=ax, data=data[data['encrypted']=='Encrypted'][column], bins=bins, binrange=binrange,
-                 stat=stat, color=sns.color_palette()[0])
+                 stat=stat, color=sns.color_palette("Set2")[0])
     sns.histplot(ax=ax, data=data[data['encrypted']=='Non encrypted'][column], bins=bins, binrange=binrange,
-                 stat=stat, color=sns.color_palette()[1])
+                 stat=stat, color=sns.color_palette("Set2")[1])
     
     ax.set_title(title, fontsize=title_fontsize, pad=40)
     
@@ -362,7 +393,7 @@ def main_plots(time_df, avg_dstat_df, main_title='', figsize=(40, 15), wspace=0.
     :rtype: matplotlib.figure.Figure
     """
 
-    fig, axes = plt.subplots(1, 3, figsize=figsize)
+    fig, axes = plt.subplots(1, 2, figsize=figsize)
     fig.subplots_adjust(wspace=wspace, hspace=hspace)
     fig.suptitle(main_title,fontsize=main_title_fontsize, y=1.05)
 
@@ -375,8 +406,9 @@ def main_plots(time_df, avg_dstat_df, main_title='', figsize=(40, 15), wspace=0.
     axes[1].set(ylabel='Read speed (MB/s)')
 
     # AVERAGE WRITE SPEED
-    boxplot(avg_dstat_df, 'wMB/s', ax=axes[2], title='Average write speed', notch=notch, pvalues=pvalues)
-    axes[2].set(ylabel='Write speed (MB/s)')
+    #boxplot(avg_dstat_df, 'wMB/s', ax=axes[2], title='Average write speed', notch=notch, pvalues=pvalues)
+    #axes[2].set(ylabel='Write speed (MB/s)')
+    #axes[2].set_axis_off() 
 
     return fig
 
