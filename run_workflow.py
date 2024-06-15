@@ -28,6 +28,9 @@ def cli_options():
     parser.add_argument('--dstat-output-dir', default='~/dstat_out', dest='dstat_output_dir', help='dstat output dir')
     parser.add_argument('--dstat-device', default='vdb1', dest='dstat_device', help='dstat device to monitor')
     parser.add_argument('--metrics-output-dir', default='.', dest='metrics_output_dir', help="Path in which jobs metrics are written")
+
+    parser.add_argument('--import-datasets-from-library', default=False, dest='import_from_library', action='store_true', help="Import datasets from Library")
+    
     return parser.parse_args()
 
 
@@ -47,6 +50,24 @@ def upload_and_build_data_input(inputs_path, galaxy_instance, history_id, workfl
     wait_for_dataset(galaxy_instance, history_id)
 
     return data
+
+
+def import_and_build_data_input(inputs_path, galaxy_instance, history_id, workflow_id):
+    with open(inputs_path, 'r') as f:
+        inputs_dict = json.load(f)
+    data = dict()
+    for file_name, file_options in inputs_dict.items():
+        dataset_id = file_options['dataset_id']
+        upload = galaxy_instance.histories.copy_dataset(history_id=history_id ,dataset_id=dataset_id,source='library_folder')
+        upload_id = upload[0]['id']
+        wf_input = galaxy_instance.workflows.get_workflow_inputs(workflow_id, label=file_name)[0]
+        data[wf_input] = {'id':upload_id, 'src':'hda'}
+
+    # Wait for dataset
+    wait_for_dataset(galaxy_instance, history_id)
+
+    return data
+
 
 
 def wait_for_dataset(galaxy_instance, history_id):
@@ -130,7 +151,7 @@ def create_history(galaxy_instance, history_name, clean_histories=False):
 
 
 def run_workflow(galaxy_instance, history_id, wf_path, wf_inputs_path, log_disk_metrics=False,
-                 metrics_output_dir=None, dstat_output_dir=None, device=None, ssh_client=None):
+                 metrics_output_dir=None, dstat_output_dir=None, device=None, ssh_client=None, import_from_library=False):
     
     # Prepare endpoint to log disk metrics with dstat
     if log_disk_metrics:
@@ -147,7 +168,10 @@ def run_workflow(galaxy_instance, history_id, wf_path, wf_inputs_path, log_disk_
         ssh_client.run_dstat(device, dstat_output_file='dstat_out_upload.csv')
 
     # Upload input data and build dictionary for workflow
-    workflow_data = upload_and_build_data_input(wf_inputs_path, galaxy_instance, history_id, workflow_id)
+    if import_from_library:
+        workflow_data = import_and_build_data_input(wf_inputs_path, galaxy_instance, history_id, workflow_id)
+    else:
+        workflow_data = upload_and_build_data_input(wf_inputs_path, galaxy_instance, history_id, workflow_id)
 
     # Stop dstat, write upload jobs metrics and restart dstat for wf disk monitoring
     if log_disk_metrics:
@@ -174,7 +198,7 @@ def run_workflow(galaxy_instance, history_id, wf_path, wf_inputs_path, log_disk_
 
 def run_galaxy_tools(endpoint, api_key, history_name, wf_path, wf_inputs_path, clean_histories=False,
                      log_disk_metrics=False, metrics_output_dir=None, dstat_output_dir=None,
-                     device=None, ssh_key=None, ssh_user=None):
+                     device=None, ssh_key=None, ssh_user=None, import_from_library=False):
 
     galaxy_instance = bioblend.galaxy.GalaxyInstance(url=endpoint, key=api_key)
 
@@ -187,7 +211,7 @@ def run_galaxy_tools(endpoint, api_key, history_name, wf_path, wf_inputs_path, c
     history_id = create_history(galaxy_instance, history_name, clean_histories)
 
     run_workflow(galaxy_instance, history_id, wf_path, wf_inputs_path, log_disk_metrics,
-                 metrics_output_dir, dstat_output_dir, device, ssh_client)
+                 metrics_output_dir, dstat_output_dir, device, ssh_client, import_from_library)
 
 
 if __name__ == '__main__':
@@ -195,4 +219,4 @@ if __name__ == '__main__':
     options = cli_options()
 
     run_galaxy_tools(options.endpoint, options.api_key, options.history_name, options.wf_path, options.wf_inputs_path, options.clean_histories,
-                     options.log_disk_metrics, options.metrics_output_dir, options.dstat_output_dir, options.dstat_device, options.ssh_key, options.ssh_user)
+                     options.log_disk_metrics, options.metrics_output_dir, options.dstat_output_dir, options.dstat_device, options.ssh_key, options.ssh_user, options.import_from_library)

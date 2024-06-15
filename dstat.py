@@ -27,7 +27,7 @@ class SSHClient:
         self.run_command(f"dstat --disk-tps -d -t --noheaders -o {self.output_dir}/{dstat_output_file} -D {device} > /dev/null", wait=False)
 
     def kill_dstat(self):
-        self.run_command("pkill -9 dstat > /dev/null")
+        self.run_command("pkill -9 -f dstat > /dev/null")
 
     def get_dstat_out(self, path):
         scp_cmd = f'scp -r -i {self.ssh_key} {self.ssh_user}@{self.endpoint}:{self.output_dir} {path}'
