@@ -40,6 +40,8 @@ $ nohup ./wf_disk_test.sh --endpoint http://encrypted_galaxy_instance_url \
                           --iterations 50 > /path/to/metrics_data/metrics_encrypted/test.log
 ```
 
+To retrieve data from Galaxy data libraries, the script ``wf_disk_test_datalib.sh`` can be used. In this case the dataset id has to be provided in the input json.
+
 To run the test also on the non encrypted VM, change the script arguments accordingly, specifing
 `-o /path/to/metrics_data/metrics` as the output directory argument.
 
